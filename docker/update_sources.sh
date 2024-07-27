@@ -18,6 +18,7 @@
 [[ "${NAME}" == "Ubuntu" ]] || exit 0
 
 sed -i "s/deb\ /deb \[arch=amd64\]\ /g" /etc/apt/sources.list
+[[ -e /etc/apt/sources.list.d/ubuntu.sources ]] && sed -i '/Types: deb/a Architectures: amd64' /etc/apt/sources.list.d/ubuntu.sources
 
 cat <<EOT >> /etc/apt/sources.list
 deb [arch=arm64,armhf] http://ports.ubuntu.com/ubuntu-ports ${UBUNTU_CODENAME} main universe

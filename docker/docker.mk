@@ -21,6 +21,8 @@ done
 
 define run_command
 chmod a+w /; \
+userdel ubuntu || true; \
+groupdel ubuntu || true; \
 groupadd --gid $(shell id -g) $(shell id -g -n); \
 useradd -m -e '' -s /bin/bash --gid $(shell id -g) --uid $(shell id -u) $(shell id -u -n); \
 echo '$(shell id -u -n) ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers; \

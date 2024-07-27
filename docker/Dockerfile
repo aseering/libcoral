@@ -47,6 +47,13 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y python3-all bc && \
       software-properties-common" && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y ${PACKAGES}
 
+# Python is no longer available in Ubuntu 24.04 (Noble Numbat)
+# but Python 3 works instead
+RUN if grep 'Noble Numbat' /etc/os-release > /dev/null; \
+  then DEBIAN_FRONTEND=noninteractive apt-get install python-is-python3; \
+  else DEBIAN_FRONTEND=noninteractive apt-get install python; \
+fi
+
 # Bionic Beaver == Ubuntu 18.04
 RUN if grep 'Bionic Beaver' /etc/os-release > /dev/null; then \
       add-apt-repository ppa:ubuntu-toolchain-r/test \
@@ -56,9 +63,6 @@ RUN if grep 'Bionic Beaver' /etc/os-release > /dev/null; then \
 # On older Ubuntu these packages can't be installed in a multi-arch fashion.
 # Instead we download the debs and extract them for build time linking.
 RUN mkdir /debs && chmod a=rwx /debs && cd /debs && apt-get update && apt-get download \
-  libglib2.0-0 \
-  libglib2.0-0:armhf \
-  libglib2.0-0:arm64 \
   libglib2.0-dev \
   libglib2.0-dev:armhf \
   libglib2.0-dev:arm64 \
@@ -74,6 +78,17 @@ RUN mkdir /debs && chmod a=rwx /debs && cd /debs && apt-get update && apt-get do
   libgstreamer-plugins-base1.0-dev \
   libgstreamer-plugins-base1.0-dev:armhf \
   libgstreamer-plugins-base1.0-dev:arm64
+
+# Package name change in Ubuntu 24.04 (Noble Numbat)
+RUN if grep 'Noble Numbat' /etc/os-release > /dev/null; then cd /debs; apt-get download \
+  libglib2.0-0t64 \
+  libglib2.0-0t64:armhf \
+  libglib2.0-0t64:arm64 \
+; else apt-get download \
+  libglib2.0-0t64 \
+  libglib2.0-0:armhf \
+  libglib2.0-0:arm64 \
+; fi
 
 RUN for d in /debs/*.deb; do dpkg -x $d /usr/system_libs; done
 
